@@ -37,18 +37,30 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'django.contrib.sites',
+
+
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.github',
+
+    'social_django',
 
     'rest_framework',
     'rest_framework.authtoken',
-    'register.apps.RegisterConfig',
     'rest_framework_simplejwt.token_blacklist',
+
+     'register.apps.RegisterConfig',
+
+
 ]
+
+SITE_ID = 1
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -61,7 +73,7 @@ MIDDLEWARE = [
 ]
 
 
-SITE_ID = 1
+# SITE_ID = 1
 
 
 ROOT_URLCONF = 'project.urls'
@@ -116,7 +128,14 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend',
                             'register.backends.EmailBackend',
-                            'allauth.account.auth_backends.AuthenticationBackend',]
+                            'register.authentication.EmailAuthBackend',
+                            'social_core.backends.google.GoogleOAuth2',
+                            # "allauth.account.auth_backends.AuthenticationBackend",
+                            ]
+
+
+GOOGLE_CLIENT_ID = '608464615033-80m2vtekblb1ogdnpqmmn92p1jn6imah.apps.googleusercontent.com'
+GOOGLE_CLIENT_SECRET = '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'
 
 AUTH_USER_MODEL = 'register.User'
 

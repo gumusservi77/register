@@ -1,3 +1,6 @@
+import email
+import os
+
 from dataclasses import fields
 from distutils.log import error
 from pyexpat import model
@@ -11,12 +14,13 @@ from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken ,TokenError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from register.mail_demo import password
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+
 
 from register.models import User
 from django.contrib import auth
-
-
+from .authentication import register_social_user
+# from . import google
 
 class EmailSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=50)
@@ -79,11 +83,11 @@ class ConfirmSerializer(serializers.Serializer):
 
 
 class LoginSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(max_length=50)
+    email = serializers.EmailField(max_length=50)
     password = serializers.CharField(write_only=True , style={'input_type': 'password'})
     class Meta:
         model = User
-        fields = ['username', 'password']
+        fields = ['email', 'password']
 
 
     def get_token(self, user):
@@ -94,10 +98,16 @@ class LoginSerializer(serializers.ModelSerializer):
         }
 
     def validate(self ,request):
-        username = request.get('username','')
+        email = request.get('email','')
         password = request.get('password','')
+        filtered_user_by_email = User.objects.filter(email=email)
 
-        user = auth.authenticate(username=username,password=password)
+        user = auth.authenticate(email=email,password=password)
+
+        if filtered_user_by_email.exists() and filtered_user_by_email[0].auth_provider != 'email':
+            raise AuthenticationFailed(
+            detail = 'please continue login ' + filtered_user_by_email[0].auth_provider 
+            )
 
         if not user:
             raise AuthenticationFailed('user not found!')
@@ -106,7 +116,7 @@ class LoginSerializer(serializers.ModelSerializer):
         user.save(update_fields=['last_login'])
         token = self.get_token(user)
         print (token)
-        return {'username' : user.username}
+        return {'email' : user.email}
 
  
 
@@ -164,3 +174,23 @@ class LogoutSerializer(serializers.Serializer):
 
 
 
+# class GoogleLoginSerializer(serializers.Serializer):
+#     auth_token = serializers.CharField()
+
+#     def validate_auth_token(self , auth_token):
+#         user_data = google.Google.validate(auth_token)
+#         try:
+#             user_data['sub']
+#         except:
+#             raise serializers.ValidationError(
+#                 'the token is invalid , please login again!!'
+#             )
+#         if user_data['aud'] != os.environ.get('GOOGLE_CLIENT_ID'):
+#             raise AuthenticationFailed('oops,who are you?')
+
+#         user_id = user_data['sub']
+#         email = user_data['email']
+#         username = user_data['name']
+#         provider = 'google'
+
+#         return register_social_user(provider= provider,user_id = user_id, email=email, username=username)

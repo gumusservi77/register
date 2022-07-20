@@ -1,18 +1,32 @@
+from ast import Param
+from audioop import reverse
+from email import message
+from gc import callbacks
 from genericpath import exists
+from http import client
+from os import access
 from turtle import update
-from urllib import response
+from urllib  import response 
+
+
 from register.models import User
 from . import serializers
 from .mail_demo import password, send_pass_by_email
+from project import settings
 
 
 from rest_framework.response import Response
 from rest_framework.views import APIView 
 from rest_framework import status
 
-from django.shortcuts import get_object_or_404
-from django.shortcuts import redirect
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from dj_rest_auth.registration.views import SocialLoginView
 
+
+from django.shortcuts import get_object_or_404 , render
+from django.shortcuts import redirect
+from django.contrib import messages
 
 
 class EmailView(APIView):
@@ -146,3 +160,63 @@ class LogoutView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response('logout succesfully',status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+class GoogleLoginView(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
+    callback_url = 'http://127.0.0.1:8000/accounts/google/login/callback/'
+    client_class = OAuth2Client
+    # def google_login(request):
+    #     redirect_uri = '%s://%s%s'%(
+    #         request.schema, request.get_host(),reverse('pain:google_login')
+    #     )   
+    #     if ('code' in request.GET):
+    #         params = {
+    #             'grant_type':'authorization_code',
+    #             'code':request.GET.get('code'),
+    #             'rediret_uri':redirect_uri,
+    #             'client_id': settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY,
+    #             'client_secret': settings.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET,
+    #         }
+    #         url = 'https://accounts.google.com/o/oauth2/token'
+    #         response = request.post(url, data=params)
+    #         url = 'hhtps://googleapis.com/aouth2/v1/userinfo'
+    #         access_token = response.json().get('access_token')
+    #         response = request.get(url, Params = {'access_token':access_token})
+    #         user_data = request.json()
+    #         email = user_data.get('eamil')
+    #         if email :
+    #             user , _  = User.objects.get_or_create(email= email, username=email)
+    #             data = {
+    #                 'firdt_name': user_data.get('name', '').split()[0],
+    #                 'google_avatar': user_data.get('picture'),
+    #                 'is_active' : True
+    #             }
+    #             user.__dict__.update(data)
+    #             user.save()
+    #             user.backend = settings.AUTHENTICATION_BACKENDS[0]
+    #             # login(request , user)
+    #         else :
+    #             messages.error(
+    #                 request,
+    #                 'unable to log in with gmail '
+    #             )
+    #         id = user.id
+    #         return redirect('http://127.0.0.1:8000/api/email/')
+    #     else:
+    #         url = "https://accounts.google.com/o/oauth2/auth?client_id=%s&response_type=code&scope=%s&redirect_uri=%s&state=google"
+    #         scope = [
+    #             "https://www.googleapis.com/auth/userinfo.profile",
+    #             "https://www.googleapis.com/auth/userinfo.email"
+    #         ]
+    #         scope = " ".join(scope)
+    #         url = url % (settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY, scope, redirect_uri)
+    #         return redirect(url)
+    # serializer_class = serializers.GoogleLoginSerializer
+    # def post(self , request):
+    #     serializer = self.serializer_class(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     data = ((serializer.validated_data)['auth_token'])
+    #     return Response(data, status=status.HTTP_200_OK)
