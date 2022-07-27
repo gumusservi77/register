@@ -1,10 +1,3 @@
-import email
-import os
-
-from dataclasses import fields
-from distutils.log import error
-from pyexpat import model
-from django.forms import IntegerField
 from django.utils import timezone
 from django.contrib.auth import password_validation
 from django.core import exceptions
@@ -13,14 +6,13 @@ import django.contrib.auth.password_validation as validators
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken ,TokenError
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 
 from register.models import User
 from django.contrib import auth
-from .authentication import register_social_user
-# from . import google
+
+
+
 
 class EmailSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=50)
@@ -170,27 +162,3 @@ class LogoutSerializer(serializers.Serializer):
             RefreshToken(self.token).blacklist()
         except TokenError:
             self.fail ('Token is invalid!!')
-
-
-
-
-# class GoogleLoginSerializer(serializers.Serializer):
-#     auth_token = serializers.CharField()
-
-#     def validate_auth_token(self , auth_token):
-#         user_data = google.Google.validate(auth_token)
-#         try:
-#             user_data['sub']
-#         except:
-#             raise serializers.ValidationError(
-#                 'the token is invalid , please login again!!'
-#             )
-#         if user_data['aud'] != os.environ.get('GOOGLE_CLIENT_ID'):
-#             raise AuthenticationFailed('oops,who are you?')
-
-#         user_id = user_data['sub']
-#         email = user_data['email']
-#         username = user_data['name']
-#         provider = 'google'
-
-#         return register_social_user(provider= provider,user_id = user_id, email=email, username=username)

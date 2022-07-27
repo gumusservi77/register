@@ -60,7 +60,7 @@ INSTALLED_APPS = [
 ]
 
 SITE_ID = 1
-
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -71,9 +71,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-
-# SITE_ID = 1
 
 
 ROOT_URLCONF = 'project.urls'
@@ -194,7 +191,7 @@ SIMPLE_JWT = {
 
 
 # SMTP  
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'mahta.moslehi77@gmail.com'
 EMAIL_USE_TLS = True
